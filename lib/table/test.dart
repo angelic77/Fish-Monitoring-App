@@ -36,7 +36,7 @@ class _TestState extends State<Test> {
                             //print(doc[index].documentID);
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => Chart()),
+                              MaterialPageRoute(builder: (context) => Chart(docID: doc[index].id,)),
                             );
                           },
                           child: Card(
