@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter_application_web/model/fcmodel.dart';
 import 'package:intl/intl.dart';
+import 'dart:developer' as developer;
 
 class Chart extends StatefulWidget {
-  final doc;
+  final String docID;
 
-  const Chart({Key? key, this.doc}) : super(key: key);
+  const Chart({Key? key,required this.docID}) : super(key: key);
 
   @override
   _ChartState createState() {
@@ -15,15 +16,17 @@ class Chart extends StatefulWidget {
   }
 }
 
+
 class _ChartState extends State<Chart> {
   late List<charts.Series<Fish, String>> _seriesBarData;
   late List<Fish> mydata;
+  
   _generateData(mydata) {
-    _seriesBarData = <charts.Series<Fish, String>>[];
+    _seriesBarData = <charts.Series<Fish, String>>[];    
     _seriesBarData.add(
       charts.Series(
         domainFn: (Fish fish, _) => fish.date.toString(),
-        measureFn: (Fish fish, _) => fish.quantity,
+        measureFn: (Fish fish, _) => int.parse(fish.quantity),
         colorFn: (_, __) => charts.MaterialPalette.green.shadeDefault,
         fillPatternFn: (_, __) => charts.FillPatternType.solid,
         id: 'Fish',
@@ -41,20 +44,23 @@ class _ChartState extends State<Chart> {
   }
 
   Widget _buildBody(BuildContext context) {
+    developer.log(widget.docID, name: "User");
+    
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('users')
-          .doc(widget.doc)
+          .doc(widget.docID)
           .collection('fishcatch')
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return LinearProgressIndicator();
-        } else {
+        } else {        
           List<Fish> sales = snapshot.data!.docs
               .map((documentSnapshot) =>
                   Fish.fromMap(documentSnapshot.data() as Map<String, dynamic>))
               .toList();
+              developer.log(snapshot.data!.docs.length.toString(), name: "Data Length");
           return _buildChart(context, sales);
         }
       },
@@ -63,6 +69,7 @@ class _ChartState extends State<Chart> {
 
   Widget _buildChart(BuildContext context, List<Fish> fishdata) {
     mydata = fishdata;
+
     _generateData(mydata);
     return Padding(
       padding: EdgeInsets.all(8.0),
