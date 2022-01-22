@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Fish {
-  final int quantity;
+  final String quantity;
   final Timestamp date;
   Fish(
     this.quantity,
